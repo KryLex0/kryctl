@@ -1,0 +1,122 @@
+name: kryctl
+help: Sample application
+version: 0.1.0
+
+# environment_variables:
+# - name: api_key
+#   help: Set your API key
+
+commands:
+- name: completions
+  help: Generate bash completions
+  group: kryctl
+  examples:
+  - eval "$(kryctl completions)"
+  - kryctl completions bash
+  - kryctl completions bash --shell=bash
+
+- name: terminal
+  help: Manage terminal
+  commands:
+  - name: change
+    help: Prompt for switching terminal
+  examples:
+  - kryctl terminal change
+
+- name: git
+  help: Manage terminal
+  commands:
+  - name: stash
+    help: Save changes locally, pull, and apply local changes back
+  examples:
+  - kryctl git stash
+
+- name: space
+  help: Manage spaces
+  commands:
+  - name: clear
+    help: Clear disk space (apt, journal, docker, ...)
+  examples:
+  - kryctl space clear
+
+- name: kube
+  help: Manage Kubernetes
+  commands:
+  - name: context
+    help: Switch Kubernetes context
+  - name: find
+    help: Find string in Kubernetes resources
+  - name: set-config
+    help: Change Kubernetes configuration
+  examples:
+  - kryctl kube context
+  - kryctl kube find
+
+- name: multipass
+  help: Manage Multipass
+  examples:
+  - kryctl multipass
+
+# - help: Open specific folder in graphical file manager
+#   name: open
+#   args:
+#   - name: folder
+#     required: false
+#     help: Folder to open
+#   examples:
+#   - kryctl open /path/to/folder
+- name: s3
+  help: Deploy S3 Manager
+  commands:
+  - name: profiles
+    help: List S3 profiles
+  - name: ui
+    help: Run S3 Manager UI
+    flags:
+    - long: --profile
+      short: -p
+      arg: profile
+      help: Profile to use
+    - long: --endpoint
+      short: -e
+      arg: endpoint
+      help: S3 endpoint
+    - long: --credentials-path
+      short: -c
+      arg: credentials-path
+      help: S3 credentials path
+  examples:
+  - kryctl s3 profiles
+  - kryctl s3 ui --profile=default
+  - kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com --credentials-path=/path/to/credentials
+  # # flags:
+  # # - long: --force
+  #   # short: -f
+  #   # help: Overwrite existing files
+
+  # examples:
+  # - kryctl download example.com
+  # - kryctl download example.com ./output -f
+
+  # environment_variables:
+  # - name: default_target_location
+  #   help: Set the default location to download to
+
+  # - name: upload
+  #   alias: u
+  #   help: Upload a file
+  #   args:
+  #   - name: source
+  #     required: true
+  #     help: File to upload
+
+  #   flags:
+  #   - long: --user
+  #     short: -u
+  #     arg: user
+  #     help: Username to use for logging in
+  #     required: true
+  #   - long: --password
+  #     short: -p
+  #     arg: password
+  #     help: Password to use for logging in
