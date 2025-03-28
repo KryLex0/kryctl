@@ -89,8 +89,6 @@ kryctl_completions_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  eval \"$(kryctl completions)\"\n"
-    printf "  kryctl completions bash\n"
-    printf "  kryctl completions bash --shell=bash\n"
     echo
 
   fi
@@ -749,7 +747,7 @@ kryctl_completions_command() {
   echo "# this file is located in 'src/completions_command.sh'"
   echo "# code for 'kryctl completions' goes here"
   echo "# you can edit it freely and regenerate (it will not be overwritten)"
-
+  send_completions
 }
 
 # :command.function

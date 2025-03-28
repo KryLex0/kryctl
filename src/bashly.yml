@@ -12,8 +12,6 @@ commands:
   group: kryctl
   examples:
   - eval "$(kryctl completions)"
-  - kryctl completions bash
-  - kryctl completions bash --shell=bash
 
 - name: terminal
   help: Manage terminal
