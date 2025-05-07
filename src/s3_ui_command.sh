@@ -21,6 +21,7 @@ fi
 
 if [ -z "$ENDPOINT_URL" ]; then
   echo "ENDPOINT_URL not set, using default $DEFAULT_ENDPOINT_URL"
+  ENDPOINT_URL=$DEFAULT_ENDPOINT_URL
 fi
 
 # Vérifie que le profil existe dans $AWS_CREDENTIALS

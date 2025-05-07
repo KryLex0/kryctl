@@ -910,8 +910,8 @@ kryctl_multipass_command() {
 
       # Create a new instance
       echo "Creating instance $2"
-      echo multipass launch $1 --name $2 --disk $disk --memory $ram
-      multipass launch $1 --name $2 --disk $disk --memory $ram
+      echo multipass launch $1 --name $2 --disk $disk --memory $ram --cpus $5
+      multipass launch $1 --name $2 --disk $disk --memory $ram --cpus $5
   }
 
   # Run the instance
@@ -1001,33 +1001,41 @@ kryctl_multipass_command() {
   }
 
   manage_instance() {
-      # if argument suply with command name and system name
-      if [ $# -eq 2 ]; then
-          if [ $1 = "restart" ]; then
-              restart_instance $2
-          elif [ $1 = "create" ]; then
-              if [ $2 = "" || $3 = "" || $4 = "" || $5 = "" ]; then
+      # Store arguments in variables
+      command=$1
+      instance_name=$2
+      image=$3
+      disk_size=$4
+      ram_size=$5
+      cpu=$6
+
+      # Check the number of arguments
+      if [ $# -ge 2 ]; then
+          if [ "$command" = "restart" ]; then
+              restart_instance "$instance_name"
+          elif [ "$command" = "create" ]; then
+              if [ -z "$image" ] || [ -z "$instance_name" ] || [ -z "$disk_size" ] || [ -z "$ram_size" ] || [ -z "$cpu" ]; then
                   echo "Invalid command"
-                  echo "Usage: cmd-multipass create <image> <instance_name> <disk_size> <ram_size>"
+                  echo "Usage: cmd-multipass create <image> <instance_name> <disk_size> <ram_size> <cpu>"
                   exit
               fi
-              create_instance $2 $3 $4 $5
-          elif [ $1 = "run" ]; then
-              if [ "$(multipass list | grep $1 | wc -l) -eq 1" ]; then
-                  run_instance $2
+              create_instance "$image" "$instance_name" "$disk_size" "$ram_size" "$cpu"
+          elif [ "$command" = "run" ]; then
+              if [ "$(multipass list | grep "$instance_name" | wc -l)" -eq 1 ]; then
+                  run_instance "$instance_name"
                   exit
               else
                   echo "Instance does not exist"
                   exit
               fi
-          elif [ $1 = "cp" ]; then
-              cp_files $2 $3
-          elif [ $1 = "modify" ]; then
-              modify_instance $2
-          elif [ $1 = "rm" ]; then
-              delete_instance $2
-          elif [ $1 = "stop" ]; then
-              stop_instance $2
+          elif [ "$command" = "cp" ]; then
+              cp_files "$image" "$instance_name"
+          elif [ "$command" = "modify" ]; then
+              modify_instance "$instance_name" "$disk_size" "$ram_size" "$cpu"
+          elif [ "$command" = "rm" ]; then
+              delete_instance "$instance_name"
+          elif [ "$command" = "stop" ]; then
+              stop_instance "$instance_name"
           else
               echo "Invalid command"
           fi
@@ -1037,7 +1045,10 @@ kryctl_multipass_command() {
 
   init_prompt() {
       echo "use this command to create a debian 11 VM:"
-      echo "multipass launch --name debian11 -vvvv https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2"
+      echo "$ multipass launch --name debian-fip -vvvv https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2 --cpus 3 --memory 4G --disk 20G"
+
+      echo "use this command to create a VM with a custom image:"
+      echo "$ multipass launch --name rhel2 -vvvv file:///path/to/qcow2/img/rhel-8.9-x86_64-kvm.qcow2 --cpus 3 --memory 4G --disk 20G"
       # Ask what to do
       echo "What do you want to do?"
       # echo "0. Start/Stop Multipass service"
@@ -1087,7 +1098,10 @@ kryctl_multipass_command() {
           if [ -z "$ram_size" ]; then
               ram_size=4
           fi
-          create_instance $image $name $disk_size $ram_size
+          if [ -z "$cpu" ]; then
+              cpu=1
+          fi
+          create_instance $image $name $disk_size $ram_size $cpu
           run_instance $name
           exit 0
       fi
@@ -1183,6 +1197,7 @@ kryctl_s3_ui_command() {
 
   if [ -z "$ENDPOINT_URL" ]; then
     echo "ENDPOINT_URL not set, using default $DEFAULT_ENDPOINT_URL"
+    ENDPOINT_URL=$DEFAULT_ENDPOINT_URL
   fi
 
   # Vérifie que le profil existe dans $AWS_CREDENTIALS
