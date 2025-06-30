@@ -83,10 +83,16 @@ commands:
       short: -c
       arg: credentials-path
       help: S3 credentials path
+    - long: --config-path
+      short: -C
+      arg: config-path
+      help: S3 config path
   examples:
   - kryctl s3 profiles
   - kryctl s3 ui --profile=default
   - kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com --credentials-path=/path/to/credentials
+  - kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com --credentials-path=/path/to/credentials --config-path=/path/to/config
+  - kryctl s3 ui -e oos.eu-west-2.outscale.com -c /path/to/credentials -C /path/to/config
   # # flags:
   # # - long: --force
   #   # short: -f

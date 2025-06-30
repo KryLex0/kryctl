@@ -75,7 +75,7 @@ send_completions() {
   echo $'      ;;'
   echo $''
   echo $'    \'s3 ui\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--credentials-path --endpoint --help --profile -c -e -h -p")" -- "$cur" )'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--config-path --credentials-path --endpoint --help --profile -C -c -e -h -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'kube\'*)'

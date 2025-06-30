@@ -493,6 +493,8 @@ kryctl_s3_usage() {
     printf "  kryctl s3 profiles\n"
     printf "  kryctl s3 ui --profile=default\n"
     printf "  kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com\n  --credentials-path=/path/to/credentials\n"
+    printf "  kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com\n  --credentials-path=/path/to/credentials --config-path=/path/to/config\n"
+    printf "  kryctl s3 ui -e oos.eu-west-2.outscale.com -c /path/to/credentials -C\n  /path/to/config\n"
     echo
 
   fi
@@ -562,6 +564,11 @@ kryctl_s3_ui_usage() {
     # :flag.usage
     printf "  %s\n" "--credentials-path, -c CREDENTIALS-PATH"
     printf "    S3 credentials path\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--config-path, -C CONFIG-PATH"
+    printf "    S3 config path\n"
     echo
 
     # :command.usage_fixed_flags
@@ -714,7 +721,7 @@ send_completions() {
   echo $'      ;;'
   echo $''
   echo $'    \'s3 ui\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--credentials-path --endpoint --help --profile -c -e -h -p")" -- "$cur" )'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--config-path --credentials-path --endpoint --help --profile -C -c -e -h -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'kube\'*)'
@@ -1179,6 +1186,7 @@ kryctl_s3_ui_command() {
 
   # inspect_args
   AWS_CREDENTIALS=${args["--credentials-path"]}
+  AWS_CONFIG=${args["--config-path"]}
   ENDPOINT_URL=${args["--endpoint"]}
   PROFILE=${args["--profile"]}
 
@@ -1195,9 +1203,30 @@ kryctl_s3_ui_command() {
     fi
   fi
 
+  if [ -z "$AWS_CONFIG" ]; then
+    echo "AWS_CONFIG not set, using default location $HOME/.aws/config"
+    AWS_CONFIG="$HOME/.aws/config"
+  else
+    # verify it exists
+    if [ ! -f "$AWS_CONFIG" ]; then
+      echo "Error: AWS_CONFIG file not found at $AWS_CONFIG"
+      exit 1
+    else
+      echo "Using AWS_CONFIG file at $AWS_CONFIG"
+    fi
+  fi
+
   if [ -z "$ENDPOINT_URL" ]; then
-    echo "ENDPOINT_URL not set, using default $DEFAULT_ENDPOINT_URL"
-    ENDPOINT_URL=$DEFAULT_ENDPOINT_URL
+    echo "ENDPOINT_URL not set, checking '$AWS_CONFIG' for profile '$PROFILE'"
+    ENDPOINT_URL=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; getline; getline; print $3}' $AWS_CONFIG)
+    if [ -z "$ENDPOINT_URL" ]; then
+      echo "ENDPOINT_URL not found in $AWS_CONFIG for profile '$PROFILE', using default $DEFAULT_ENDPOINT_URL"
+      ENDPOINT_URL=$DEFAULT_ENDPOINT_URL
+    else
+      # remove protocol if present
+      ENDPOINT_URL=$(echo "$ENDPOINT_URL" | sed 's|https://||; s|http://||')
+      echo "Found ENDPOINT_URL in $AWS_CONFIG: $ENDPOINT_URL"
+    fi
   fi
 
   # Vérifie que le profil existe dans $AWS_CREDENTIALS
@@ -2177,6 +2206,21 @@ kryctl_s3_ui_parse_requirements() {
           shift
         else
           printf "%s\n" "--credentials-path requires an argument: --credentials-path, -c CREDENTIALS-PATH" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --config-path | -C)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--config-path']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--config-path requires an argument: --config-path, -C CONFIG-PATH" >&2
           exit 1
         fi
         ;;

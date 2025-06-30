@@ -3,6 +3,7 @@ DEFAULT_ENDPOINT_URL="oos.eu-west-2.outscale.com"
 
 # inspect_args
 AWS_CREDENTIALS=${args["--credentials-path"]}
+AWS_CONFIG=${args["--config-path"]}
 ENDPOINT_URL=${args["--endpoint"]}
 PROFILE=${args["--profile"]}
 
@@ -19,9 +20,30 @@ else
   fi
 fi
 
+if [ -z "$AWS_CONFIG" ]; then
+  echo "AWS_CONFIG not set, using default location $HOME/.aws/config"
+  AWS_CONFIG="$HOME/.aws/config"
+else
+  # verify it exists
+  if [ ! -f "$AWS_CONFIG" ]; then
+    echo "Error: AWS_CONFIG file not found at $AWS_CONFIG"
+    exit 1
+  else
+    echo "Using AWS_CONFIG file at $AWS_CONFIG"
+  fi
+fi
+
 if [ -z "$ENDPOINT_URL" ]; then
-  echo "ENDPOINT_URL not set, using default $DEFAULT_ENDPOINT_URL"
-  ENDPOINT_URL=$DEFAULT_ENDPOINT_URL
+  echo "ENDPOINT_URL not set, checking '$AWS_CONFIG' for profile '$PROFILE'"
+  ENDPOINT_URL=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; getline; getline; print $3}' $AWS_CONFIG)
+  if [ -z "$ENDPOINT_URL" ]; then
+    echo "ENDPOINT_URL not found in $AWS_CONFIG for profile '$PROFILE', using default $DEFAULT_ENDPOINT_URL"
+    ENDPOINT_URL=$DEFAULT_ENDPOINT_URL
+  else
+    # remove protocol if present
+    ENDPOINT_URL=$(echo "$ENDPOINT_URL" | sed 's|https://||; s|http://||')
+    echo "Found ENDPOINT_URL in $AWS_CONFIG: $ENDPOINT_URL"
+  fi
 fi
 
 # Vérifie que le profil existe dans $AWS_CREDENTIALS
