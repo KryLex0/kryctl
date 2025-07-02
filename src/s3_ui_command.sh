@@ -77,6 +77,13 @@ if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
   exit 0
 fi
 
+# check if container is already running
+if docker ps --filter "name=s3-manager-ui" --filter "status=running" | grep -q s3-manager-ui; then
+  # If the container is running, stop it
+  echo "Container 's3-manager-ui' is already running. Stopping it first."
+  docker stop s3-manager-ui
+fi
+
 # Lance le conteneur Docker avec les clés et l'endpoint récupérés
 docker run --rm -d --name s3-manager-ui -p 8080:8080 \
   -e "ACCESS_KEY_ID=$ACCESS_KEY_ID" \

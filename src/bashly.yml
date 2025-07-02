@@ -44,11 +44,17 @@ commands:
     help: Switch Kubernetes context
   - name: find
     help: Find string in Kubernetes resources
+    flags:
+    - long: --kubeconfig
+      short: -k
+      arg: kubeconfig
+      help: Path to kubeconfig file
   - name: set-config
     help: Change Kubernetes configuration
   examples:
   - kryctl kube context
   - kryctl kube find
+  - kryctl kube find --kubeconfig=/path/to/kubeconfig
 
 - name: multipass
   help: Manage Multipass

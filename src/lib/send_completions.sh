@@ -63,7 +63,7 @@ send_completions() {
   echo $'      ;;'
   echo $''
   echo $'    \'kube find\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help --kubeconfig -h -k")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'terminal\'*)'

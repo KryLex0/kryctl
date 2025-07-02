@@ -331,6 +331,7 @@ kryctl_kube_usage() {
     printf "%s\n" "Examples:"
     printf "  kryctl kube context\n"
     printf "  kryctl kube find\n"
+    printf "  kryctl kube find --kubeconfig=/path/to/kubeconfig\n"
     echo
 
   fi
@@ -378,13 +379,19 @@ kryctl_kube_find_usage() {
   fi
 
   printf "%s\n" "Usage:"
-  printf "  kryctl kube find\n"
+  printf "  kryctl kube find [OPTIONS]\n"
   printf "  kryctl kube find --help | -h\n"
   echo
 
   # :command.long_usage
   if [[ -n $long_usage ]]; then
     printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--kubeconfig, -k KUBECONFIG"
+    printf "    Path to kubeconfig file\n"
+    echo
 
     # :command.usage_fixed_flags
     printf "  %s\n" "--help, -h"
@@ -709,7 +716,7 @@ send_completions() {
   echo $'      ;;'
   echo $''
   echo $'    \'kube find\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help --kubeconfig -h -k")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'terminal\'*)'
@@ -841,6 +848,8 @@ kryctl_kube_find_command() {
   #k get clusters.management.cattle.io -n fleet-default c-m-chzpn7mr -o yaml
   echo "Script to find a specific string in all CRDs of the current cluster"
 
+  KUBECONFIG_PATH=${args["--kubeconfig"]}
+  KUBECONFIG=""
   FILTER_STRING=""
 
   # check if argument is supplied
@@ -850,12 +859,26 @@ kryctl_kube_find_command() {
     echo "Filter string: $FILTER_STRING"
   fi
 
-  # Lst all crd
-  CRDS=$(kubectl get crd -o jsonpath='{.items[*].metadata.name}')
+  if [ ! -f "$KUBECONFIG_PATH" ]; then
+    # If the kubeconfig file does not exist, exit with an error
+    echo "Error: Kubeconfig file not found at $KUBECONFIG_PATH"
+    exit 1
+  fi
+
+  if [ -n "$KUBECONFIG_PATH" ]; then
+    echo "Using kubeconfig file: $KUBECONFIG_PATH"
+    KUBECONFIG="--kubeconfig $KUBECONFIG_PATH"
+  else
+    echo "Using default kubeconfig file"
+    KUBECONFIG="--kubeconfig $HOME/.kube/config"
+  fi
+
+  # List all crd
+  CRDS=$(kubectl $KUBECONFIG get crd -o jsonpath='{.items[*].metadata.name}')
 
   for CRD in $CRDS; do
     echo "CRD: $CRD"
-    kubectl get $CRD -A -o yaml | grep -i "$FILTER_STRING"
+    kubectl $KUBECONFIG get $CRD -A -o yaml | grep -i "$FILTER_STRING"
 
     # kubectl get $CRD -A -o yaml | grep "sample-cluster1-pool-master-7478dc8dfbxkzf6c-bp2r5"
   done
@@ -1258,6 +1281,13 @@ kryctl_s3_ui_command() {
   if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
     echo "Aborting."
     exit 0
+  fi
+
+  # check if container is already running
+  if docker ps --filter "name=s3-manager-ui" --filter "status=running" | grep -q s3-manager-ui; then
+    # If the container is running, stop it
+    echo "Container 's3-manager-ui' is already running. Stopping it first."
+    docker stop s3-manager-ui
   fi
 
   # Lance le conteneur Docker avec les clés et l'endpoint récupérés
@@ -1915,6 +1945,20 @@ kryctl_kube_find_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --kubeconfig | -k)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--kubeconfig']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--kubeconfig requires an argument: --kubeconfig, -k KUBECONFIG" >&2
+          exit 1
+        fi
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2
