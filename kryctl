@@ -484,6 +484,11 @@ kryctl_s3_usage() {
   printf "%s\n" "Commands:"
   printf "  %s   List S3 profiles\n" "profiles"
   printf "  %s   Run S3 Manager UI\n" "ui      "
+  printf "  %s   Get size of S3 bucket\n" "get-size"
+  printf "  %s   Download file from S3\n" "download"
+  printf "  %s   Sync S3 bucket to local directory\n" "sync    "
+  printf "  %s   Upload file to S3\n" "upload  "
+  printf "  %s   Delete file from S3\n" "delete  "
   echo
 
   # :command.long_usage
@@ -502,6 +507,19 @@ kryctl_s3_usage() {
     printf "  kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com\n  --credentials-path=/path/to/credentials\n"
     printf "  kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com\n  --credentials-path=/path/to/credentials --config-path=/path/to/config\n"
     printf "  kryctl s3 ui -e oos.eu-west-2.outscale.com -c /path/to/credentials -C\n  /path/to/config\n"
+    printf "  kryctl s3 get-size --bucket=my-bucket --profile=default\n"
+    printf "  kryctl s3 get-size -b my-bucket -p default\n"
+    printf "  kryctl s3 download --bucket-path=my-bucket/my-file.txt --profile=default\n  --output=/path/to/output.txt\n"
+    printf "  kryctl s3 download -b my-bucket/my-file.txt -p default -o /path/to/output.txt\n"
+    printf "  kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir\n  --profile=default\n"
+    printf "  kryctl s3 sync -b my-bucket -l /path/to/local/dir -p default\n"
+    printf "  kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir\n  --direction=upload --profile=default\n"
+    printf "  kryctl s3 upload --bucket=my-bucket --file=/path/to/local/file.txt\n  --profile=default\n"
+    printf "  kryctl s3 upload -b my-bucket -f /path/to/local/file.txt -p default\n"
+    printf "  kryctl s3 delete --bucket-path=my-bucket/my-file.txt --profile=default\n"
+    printf "  kryctl s3 delete -b my-bucket/my-file.txt -p default\n"
+    printf "  kryctl s3 delete --bucket-path=my-bucket/my-file.txt --file=my-file.txt\n  --profile=default\n"
+    printf "  kryctl s3 delete -b my-bucket/my-file.txt -f my-file.txt -p default\n"
     echo
 
   fi
@@ -576,6 +594,232 @@ kryctl_s3_ui_usage() {
     # :flag.usage
     printf "  %s\n" "--config-path, -C CONFIG-PATH"
     printf "    S3 config path\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+kryctl_s3_get_size_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "kryctl s3 get-size - Get size of S3 bucket\n"
+    echo
+
+  else
+    printf "kryctl s3 get-size - Get size of S3 bucket\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  kryctl s3 get-size [OPTIONS]\n"
+  printf "  kryctl s3 get-size --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--bucket, -b BUCKET (required)"
+    printf "    S3 bucket name\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--profile, -p PROFILE"
+    printf "    S3 profile to use\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+kryctl_s3_download_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "kryctl s3 download - Download file from S3\n"
+    echo
+
+  else
+    printf "kryctl s3 download - Download file from S3\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  kryctl s3 download [OPTIONS]\n"
+  printf "  kryctl s3 download --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--bucket-path, -b BUCKET-PATH (required)"
+    printf "    S3 bucket path to the resource\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--profile, -p PROFILE"
+    printf "    S3 profile to use\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--output, -o OUTPUT"
+    printf "    Output file path\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+kryctl_s3_sync_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "kryctl s3 sync - Sync S3 bucket to local directory\n"
+    echo
+
+  else
+    printf "kryctl s3 sync - Sync S3 bucket to local directory\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  kryctl s3 sync [OPTIONS]\n"
+  printf "  kryctl s3 sync --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--bucket, -b BUCKET (required)"
+    printf "    S3 bucket name\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--local-dir, -l LOCAL-DIR (required)"
+    printf "    Local directory to sync to\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--direction, -d DIRECTION"
+    printf "    Sync direction between 'upload' (local to bucket) or 'download' (bucket to\n    local)\n"
+    printf "    Default: download\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--profile, -p PROFILE"
+    printf "    S3 profile to use\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+kryctl_s3_upload_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "kryctl s3 upload - Upload file to S3\n"
+    echo
+
+  else
+    printf "kryctl s3 upload - Upload file to S3\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  kryctl s3 upload [OPTIONS]\n"
+  printf "  kryctl s3 upload --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--bucket, -b BUCKET (required)"
+    printf "    S3 bucket name\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--file, -f FILE (required)"
+    printf "    Local file to upload\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--profile, -p PROFILE"
+    printf "    S3 profile to use\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+kryctl_s3_delete_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "kryctl s3 delete - Delete file from S3\n"
+    echo
+
+  else
+    printf "kryctl s3 delete - Delete file from S3\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  kryctl s3 delete [OPTIONS]\n"
+  printf "  kryctl s3 delete --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--bucket-path, -b BUCKET-PATH (required)"
+    printf "    S3 bucket path to the resource\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--file, -f FILE"
+    printf "    File to delete from S3 (optional, if not provided, will delete the entire\n    bucket path)\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--profile, -p PROFILE"
+    printf "    S3 profile to use\n"
     echo
 
     # :command.usage_fixed_flags
@@ -703,24 +947,44 @@ send_completions() {
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
   echo $'      ;;'
   echo $''
+  echo $'    \'s3 get-size\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket --help --profile -b -h -p")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
   echo $'    \'space clear\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
+  echo $'    \'s3 download\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket-path --help --output --profile -b -h -o -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'git stash\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
   echo $'      ;;'
   echo $''
-  echo $'    \'multipass\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
+  echo $'    \'s3 delete\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket-path --file --help --profile -b -f -h -p")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
+  echo $'    \'s3 upload\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket --file --help --profile -b -f -h -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'kube find\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help --kubeconfig -h -k")" -- "$cur" )'
   echo $'      ;;'
   echo $''
+  echo $'    \'multipass\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
   echo $'    \'terminal\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h change")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
+  echo $'    \'s3 sync\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket --direction --help --local-dir --profile -b -d -h -l -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'space\'*)'
@@ -740,7 +1004,7 @@ send_completions() {
   echo $'      ;;'
   echo $''
   echo $'    \'s3\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h profiles ui")" -- "$cur" )'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h delete download get-size profiles sync ui upload")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    *)'
@@ -1301,6 +1565,140 @@ kryctl_s3_ui_command() {
   echo "You can access the UI at http://localhost:8080"
 
   exit 0
+
+}
+
+# :command.function
+kryctl_s3_get_size_command() {
+  # src/s3_get_size_command.sh
+  # ENDPOINT_URL="https://oos.eu-west-2.outscale.com"
+  DEFAULT_ENDPOINT_URL="oos.eu-west-2.outscale.com"
+
+  # inspect_args
+  PROFILE=${args["--profile"]}
+  BUCKET=${args["--bucket"]}
+  AWS_CREDENTIALS="$HOME/.aws/credentials"
+  AWS_CONFIG="$HOME/.aws/config"
+  ENDPOINT_URL=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; getline; getline; print $3}' $AWS_CONFIG)
+
+  # Vérifie que le profil existe dans $AWS_CREDENTIALS
+  if ! grep -q "^\[$PROFILE\]" $AWS_CREDENTIALS; then
+    echo "Erreur : Le profil '$PROFILE' n'existe pas dans $AWS_CREDENTIALS."
+    kryctl s3 profiles
+    exit 1
+  fi
+
+  # Récupère les clés depuis $AWS_CREDENTIALS
+  ACCESS_KEY_ID=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; print $3}' $AWS_CREDENTIALS)
+  SECRET_ACCESS_KEY=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; getline; print $3}' $AWS_CREDENTIALS)
+
+  # Vérifie si les clés ont été trouvés
+  if [ -z "$ACCESS_KEY_ID" ] || [ -z "$SECRET_ACCESS_KEY" ]; then
+    echo "Erreur : Impossible de trouver les clés pour le profil '$PROFILE'."
+    exit 1
+  fi
+
+  echo "AK/SK found for profile '$PROFILE' :"
+  echo "  ACCESS_KEY_ID=$ACCESS_KEY_ID"
+  echo "  SECRET_ACCESS_ID=$SECRET_ACCESS_KEY"
+  echo "  ENDPOINT_URL=$ENDPOINT_URL"
+  echo "  Bucket=$BUCKET"
+
+  echo "Do you want to continue? [y/N]"
+  read -r response
+  VALID_RESPONSES=("y" "Y" "o" "O")
+
+  if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
+    echo "Aborting."
+    exit 0
+  fi
+
+  BUCKET_SIZE=$(aws s3api list-objects --bucket $BUCKET \
+    --endpoint-url $ENDPOINT_URL \
+    --output json --query "sum(Contents[].Size)" \
+    --profile $PROFILE)
+
+  # Print the bucket size in multiple human-readable formats (Bytes, MB, GB, TB) dynamically
+  echo "Bucket size:"
+  echo "  - $BUCKET_SIZE Bytes"
+
+  MB=$(bc <<< "scale=2; $BUCKET_SIZE/1024/1024")
+  GB=$(bc <<< "scale=2; $BUCKET_SIZE/1024/1024/1024")
+  TB=$(bc <<< "scale=2; $BUCKET_SIZE/1024/1024/1024/1024")
+
+  # Display MB if >= 0.01
+  if (( $(bc <<< "$MB >= 0.01") )); then
+    echo "  - $MB MB"
+  fi
+
+  # Display GB if >= 0.01
+  if (( $(bc <<< "$GB >= 0.01") )); then
+    echo "  - $GB GB"
+  fi
+
+  # Display TB if >= 0.01
+  if (( $(bc <<< "$TB >= 0.01") )); then
+    echo "  - $TB TB"
+  fi
+
+  exit 0
+
+}
+
+# :command.function
+kryctl_s3_download_command() {
+  # src/s3_download_command.sh
+  echo "# this file is located in 'src/s3_download_command.sh'"
+  echo "# code for 'kryctl s3 download' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
+
+}
+
+# :command.function
+kryctl_s3_sync_command() {
+  # src/s3_sync_command.sh
+  ENDPOINT_URL=${args["--endpoint"]}
+  PROFILE=${args["--profile"]}
+  DEFAULT_ENDPOINT_URL="https://oos.eu-west-2.outscale.com"
+
+  # Check if the endpoint URL is set, if not, use the default
+  if [ -z "$ENDPOINT_URL" ]; then
+    echo "ENDPOINT_URL not set, using default $DEFAULT_ENDPOINT_URL"
+    ENDPOINT_URL="$DEFAULT_ENDPOINT_URL"
+  fi
+
+  #aws s3 sync s3://hdh-prod-logs-probants --profile hdh-preprod --endpoint $ENDPOINT_URL ./
+}
+
+# :command.function
+kryctl_s3_upload_command() {
+  # src/s3_upload_command.sh
+  echo "# this file is located in 'src/s3_upload_command.sh'"
+  echo "# code for 'kryctl s3 upload' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
+
+  ENDPOINT_URL=${args["--endpoint"]}
+  PROFILE=${args["--profile"]}
+  DEFAULT_ENDPOINT_URL="https://oos.eu-west-2.outscale.com"
+
+  # Check if the endpoint URL is set, if not, use the default
+  if [ -z "$ENDPOINT_URL" ]; then
+    echo "ENDPOINT_URL not set, using default $DEFAULT_ENDPOINT_URL"
+    ENDPOINT_URL="$DEFAULT_ENDPOINT_URL"
+  fi
+
+  #aws s3 sync s3://hdh-prod-logs-probants --profile hdh-preprod --endpoint $ENDPOINT_URL ./
+}
+
+# :command.function
+kryctl_s3_delete_command() {
+  # src/s3_delete_command.sh
+  echo "# this file is located in 'src/s3_delete_command.sh'"
+  echo "# code for 'kryctl s3 delete' goes here"
+  echo "# you can edit it freely and regenerate (it will not be overwritten)"
+  inspect_args
 
 }
 
@@ -2104,6 +2502,41 @@ kryctl_s3_parse_requirements() {
       shift $#
       ;;
 
+    get-size)
+      action="get-size"
+      shift
+      kryctl_s3_get_size_parse_requirements "$@"
+      shift $#
+      ;;
+
+    download)
+      action="download"
+      shift
+      kryctl_s3_download_parse_requirements "$@"
+      shift $#
+      ;;
+
+    sync)
+      action="sync"
+      shift
+      kryctl_s3_sync_parse_requirements "$@"
+      shift $#
+      ;;
+
+    upload)
+      action="upload"
+      shift
+      kryctl_s3_upload_parse_requirements "$@"
+      shift $#
+      ;;
+
+    delete)
+      action="delete"
+      shift
+      kryctl_s3_delete_parse_requirements "$@"
+      shift $#
+      ;;
+
     # :command.command_fallback
     "")
       kryctl_s3_usage >&2
@@ -2287,6 +2720,487 @@ kryctl_s3_ui_parse_requirements() {
 
 }
 
+# :command.parse_requirements
+kryctl_s3_get_size_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        kryctl_s3_get_size_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="s3 get-size"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --bucket | -b)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--bucket']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--bucket requires an argument: --bucket, -b BUCKET" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --profile | -p)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--profile']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--profile requires an argument: --profile, -p PROFILE" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_flags_filter
+  if [[ -z ${args['--bucket']+x} ]]; then
+    printf "missing required flag: --bucket, -b BUCKET\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+kryctl_s3_download_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        kryctl_s3_download_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="s3 download"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --bucket-path | -b)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--bucket-path']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--bucket-path requires an argument: --bucket-path, -b BUCKET-PATH" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --profile | -p)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--profile']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--profile requires an argument: --profile, -p PROFILE" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --output | -o)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--output']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--output requires an argument: --output, -o OUTPUT" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_flags_filter
+  if [[ -z ${args['--bucket-path']+x} ]]; then
+    printf "missing required flag: --bucket-path, -b BUCKET-PATH\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+kryctl_s3_sync_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        kryctl_s3_sync_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="s3 sync"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --bucket | -b)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--bucket']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--bucket requires an argument: --bucket, -b BUCKET" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --local-dir | -l)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--local-dir']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--local-dir requires an argument: --local-dir, -l LOCAL-DIR" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --direction | -d)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--direction']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--direction requires an argument: --direction, -d DIRECTION" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --profile | -p)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--profile']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--profile requires an argument: --profile, -p PROFILE" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_flags_filter
+  if [[ -z ${args['--bucket']+x} ]]; then
+    printf "missing required flag: --bucket, -b BUCKET\n" >&2
+    exit 1
+  fi
+  if [[ -z ${args['--local-dir']+x} ]]; then
+    printf "missing required flag: --local-dir, -l LOCAL-DIR\n" >&2
+    exit 1
+  fi
+
+  # :command.default_assignments
+  [[ -n ${args['--direction']:-} ]] || args['--direction']="download"
+
+}
+
+# :command.parse_requirements
+kryctl_s3_upload_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        kryctl_s3_upload_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="s3 upload"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --bucket | -b)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--bucket']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--bucket requires an argument: --bucket, -b BUCKET" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --file | -f)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--file']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--file requires an argument: --file, -f FILE" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --profile | -p)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--profile']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--profile requires an argument: --profile, -p PROFILE" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_flags_filter
+  if [[ -z ${args['--bucket']+x} ]]; then
+    printf "missing required flag: --bucket, -b BUCKET\n" >&2
+    exit 1
+  fi
+  if [[ -z ${args['--file']+x} ]]; then
+    printf "missing required flag: --file, -f FILE\n" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+kryctl_s3_delete_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        kryctl_s3_delete_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="s3 delete"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --bucket-path | -b)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--bucket-path']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--bucket-path requires an argument: --bucket-path, -b BUCKET-PATH" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --file | -f)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--file']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--file requires an argument: --file, -f FILE" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --profile | -p)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--profile']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--profile requires an argument: --profile, -p PROFILE" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_flags_filter
+  if [[ -z ${args['--bucket-path']+x} ]]; then
+    printf "missing required flag: --bucket-path, -b BUCKET-PATH\n" >&2
+    exit 1
+  fi
+
+}
+
 # :command.initialize
 initialize() {
   version="0.1.0"
@@ -2321,6 +3235,11 @@ run() {
     "s3") kryctl_s3_command ;;
     "s3 profiles") kryctl_s3_profiles_command ;;
     "s3 ui") kryctl_s3_ui_command ;;
+    "s3 get-size") kryctl_s3_get_size_command ;;
+    "s3 download") kryctl_s3_download_command ;;
+    "s3 sync") kryctl_s3_sync_command ;;
+    "s3 upload") kryctl_s3_upload_command ;;
+    "s3 delete") kryctl_s3_delete_command ;;
   esac
 }
 

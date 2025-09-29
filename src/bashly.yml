@@ -93,12 +93,108 @@ commands:
       short: -C
       arg: config-path
       help: S3 config path
+  - name: get-size
+    help: Get size of S3 bucket
+    flags:
+    - long: --bucket
+      short: -b
+      required: true
+      help: S3 bucket name
+      arg: bucket
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
+  - name: download
+    help: Download file from S3
+    flags:
+    - long: --bucket-path
+      short: -b
+      required: true
+      help: S3 bucket path to the resource
+      arg: bucket-path
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
+    - long: --output
+      short: -o
+      help: Output file path
+      arg: output
+  - name: sync
+    help: Sync S3 bucket to local directory
+    flags:
+    - long: --bucket
+      short: -b
+      required: true
+      help: S3 bucket name
+      arg: bucket
+    - long: --local-dir
+      short: -l
+      required: true
+      help: Local directory to sync to
+      arg: local-dir
+    - long: --direction
+      short: -d
+      arg: direction
+      help: Sync direction between 'upload' (local to bucket) or 'download' (bucket to local)
+      default: download
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
+  - name: upload
+    help: Upload file to S3
+    flags:
+    - long: --bucket
+      short: -b
+      required: true
+      help: S3 bucket name
+      arg: bucket
+    - long: --file
+      short: -f
+      required: true
+      help: Local file to upload
+      arg: file
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
+  - name: delete
+    help: Delete file from S3
+    flags:
+    - long: --bucket-path
+      short: -b
+      required: true
+      help: S3 bucket path to the resource
+      arg: bucket-path
+    - long: --file
+      short: -f
+      help: File to delete from S3 (optional, if not provided, will delete the entire bucket path)
+      arg: file
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
   examples:
   - kryctl s3 profiles
   - kryctl s3 ui --profile=default
   - kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com --credentials-path=/path/to/credentials
   - kryctl s3 ui --endpoint=oos.eu-west-2.outscale.com --credentials-path=/path/to/credentials --config-path=/path/to/config
   - kryctl s3 ui -e oos.eu-west-2.outscale.com -c /path/to/credentials -C /path/to/config
+  - kryctl s3 get-size --bucket=my-bucket --profile=default
+  - kryctl s3 get-size -b my-bucket -p default
+  - kryctl s3 download --bucket-path=my-bucket/my-file.txt --profile=default --output=/path/to/output.txt
+  - kryctl s3 download -b my-bucket/my-file.txt -p default -o /path/to/output.txt
+  - kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir --profile=default
+  - kryctl s3 sync -b my-bucket -l /path/to/local/dir -p default
+  - kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir --direction=upload --profile=default
+  - kryctl s3 upload --bucket=my-bucket --file=/path/to/local/file.txt --profile=default
+  - kryctl s3 upload -b my-bucket -f /path/to/local/file.txt -p default
+  - kryctl s3 delete --bucket-path=my-bucket/my-file.txt --profile=default
+  - kryctl s3 delete -b my-bucket/my-file.txt -p default
+  - kryctl s3 delete --bucket-path=my-bucket/my-file.txt --file=my-file.txt --profile=default
+  - kryctl s3 delete -b my-bucket/my-file.txt -f my-file.txt -p default
   # # flags:
   # # - long: --force
   #   # short: -f
