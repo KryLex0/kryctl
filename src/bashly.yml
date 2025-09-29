@@ -105,6 +105,18 @@ commands:
       short: -p
       help: S3 profile to use
       arg: profile
+  - name: list
+    help: List objects in S3 bucket
+    flags:
+    - long: --bucket
+      short: -b
+      required: true
+      help: S3 bucket name
+      arg: bucket
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
   - name: download
     help: Download file from S3
     flags:
@@ -184,6 +196,8 @@ commands:
   - kryctl s3 ui -e oos.eu-west-2.outscale.com -c /path/to/credentials -C /path/to/config
   - kryctl s3 get-size --bucket=my-bucket --profile=default
   - kryctl s3 get-size -b my-bucket -p default
+  - kryctl s3 list --bucket=my-bucket --profile=default
+  - kryctl s3 list -b my-bucket -p default
   - kryctl s3 download --bucket-path=my-bucket/my-file.txt --profile=default --output=/path/to/output.txt
   - kryctl s3 download -b my-bucket/my-file.txt -p default -o /path/to/output.txt
   - kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir --profile=default
