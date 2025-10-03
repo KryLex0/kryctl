@@ -485,6 +485,7 @@ kryctl_s3_usage() {
   printf "  %s   List S3 profiles\n" "profiles"
   printf "  %s   Run S3 Manager UI\n" "ui      "
   printf "  %s   Get size of S3 bucket\n" "get-size"
+  printf "  %s   List all buckets in S3\n" "ls      "
   printf "  %s   List objects in S3 bucket\n" "list    "
   printf "  %s   Download file from S3\n" "download"
   printf "  %s   Sync S3 bucket to local directory\n" "sync    "
@@ -512,6 +513,8 @@ kryctl_s3_usage() {
     printf "  kryctl s3 get-size -b my-bucket -p default\n"
     printf "  kryctl s3 list --bucket=my-bucket --profile=default\n"
     printf "  kryctl s3 list -b my-bucket -p default\n"
+    printf "  kryctl s3 ls --profile=default\n"
+    printf "  kryctl s3 ls -p default\n"
     printf "  kryctl s3 download --bucket-path=my-bucket/my-file.txt --profile=default\n  --output=/path/to/output.txt\n"
     printf "  kryctl s3 download -b my-bucket/my-file.txt -p default -o /path/to/output.txt\n"
     printf "  kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir\n  --profile=default\n"
@@ -634,6 +637,41 @@ kryctl_s3_get_size_usage() {
     printf "    S3 bucket name\n"
     echo
 
+    # :flag.usage
+    printf "  %s\n" "--profile, -p PROFILE"
+    printf "    S3 profile to use\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+kryctl_s3_ls_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "kryctl s3 ls - List all buckets in S3\n"
+    echo
+
+  else
+    printf "kryctl s3 ls - List all buckets in S3\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  kryctl s3 ls [OPTIONS]\n"
+  printf "  kryctl s3 ls --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
     # :flag.usage
     printf "  %s\n" "--profile, -p PROFILE"
     printf "    S3 profile to use\n"
@@ -990,12 +1028,12 @@ send_completions() {
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
   echo $'      ;;'
   echo $''
-  echo $'    \'s3 download\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket-path --help --output --profile -b -h -o -p")" -- "$cur" )'
-  echo $'      ;;'
-  echo $''
   echo $'    \'s3 get-size\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket --help --profile -b -h -p")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
+  echo $'    \'s3 download\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket-path --help --output --profile -b -h -o -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'space clear\'*)'
@@ -1006,12 +1044,12 @@ send_completions() {
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h")" -- "$cur" )'
   echo $'      ;;'
   echo $''
-  echo $'    \'s3 delete\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket-path --file --help --profile -b -f -h -p")" -- "$cur" )'
-  echo $'      ;;'
-  echo $''
   echo $'    \'s3 upload\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket --file --help --profile -b -f -h -p")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
+  echo $'    \'s3 delete\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--bucket-path --file --help --profile -b -f -h -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    \'kube find\'*)'
@@ -1042,6 +1080,10 @@ send_completions() {
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--config-path --credentials-path --endpoint --help --profile -C -c -e -h -p")" -- "$cur" )'
   echo $'      ;;'
   echo $''
+  echo $'    \'s3 ls\'*)'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help --profile -h -p")" -- "$cur" )'
+  echo $'      ;;'
+  echo $''
   echo $'    \'kube\'*)'
   echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h context find set-config")" -- "$cur" )'
   echo $'      ;;'
@@ -1051,7 +1093,7 @@ send_completions() {
   echo $'      ;;'
   echo $''
   echo $'    \'s3\'*)'
-  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h delete download get-size list profiles sync ui upload")" -- "$cur" )'
+  echo $'      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_kryctl_completions_filter "--help -h delete download get-size list ls profiles sync ui upload")" -- "$cur" )'
   echo $'      ;;'
   echo $''
   echo $'    *)'
@@ -1587,7 +1629,7 @@ kryctl_s3_ui_command() {
 
   echo "Do you want to continue? [y/N]"
   read -r response
-  VALID_RESPONSES=("y" "Y" "o" "O")
+  VALID_RESPONSES=("y" "Y" "yes" "YES" "Yes" "o" "O" "oui" "OUI" "Oui")
 
   if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
     echo "Aborting."
@@ -1653,11 +1695,19 @@ kryctl_s3_get_size_command() {
 
   echo "Do you want to continue? [y/N]"
   read -r response
-  VALID_RESPONSES=("y" "Y" "o" "O")
+  VALID_RESPONSES=("y" "Y" "yes" "YES" "Yes" "o" "O" "oui" "OUI" "Oui")
 
   if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
     echo "Aborting."
     exit 0
+  fi
+
+  # Check if bucket exists and is accessible
+  if ! aws s3 ls s3://$BUCKET --profile $PROFILE --endpoint-url $ENDPOINT_URL > /dev/null 2>&1; then
+    echo "Error: The bucket '$BUCKET' does not exist or is not accessible."
+    echo "List of available buckets:"
+    yes | kryctl s3 ls --profile $PROFILE
+    exit 1
   fi
 
   BUCKET_SIZE=$(aws s3api list-objects --bucket $BUCKET \
@@ -1690,6 +1740,52 @@ kryctl_s3_get_size_command() {
 
   exit 0
 
+}
+
+# :command.function
+kryctl_s3_ls_command() {
+  # src/s3_ls_command.sh
+  # ENDPOINT_URL="https://oos.eu-west-2.outscale.com"
+  DEFAULT_ENDPOINT_URL="oos.eu-west-2.outscale.com"
+
+  # inspect_args
+  PROFILE=${args["--profile"]}
+  AWS_CREDENTIALS="$HOME/.aws/credentials"
+  AWS_CONFIG="$HOME/.aws/config"
+  ENDPOINT_URL=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; getline; getline; print $3}' $AWS_CONFIG)
+
+  # Vérifie que le profil existe dans $AWS_CREDENTIALS
+  if ! grep -q "^\[$PROFILE\]" $AWS_CREDENTIALS; then
+    echo "Erreur : Le profil '$PROFILE' n'existe pas dans $AWS_CREDENTIALS."
+    kryctl s3 profiles
+    exit 1
+  fi
+
+  # Récupère les clés depuis $AWS_CREDENTIALS
+  ACCESS_KEY_ID=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; print $3}' $AWS_CREDENTIALS)
+  SECRET_ACCESS_KEY=$(awk -v profile="[$PROFILE]" '$0 == profile {getline; getline; print $3}' $AWS_CREDENTIALS)
+
+  # Vérifie si les clés ont été trouvés
+  if [ -z "$ACCESS_KEY_ID" ] || [ -z "$SECRET_ACCESS_KEY" ]; then
+    echo "Erreur : Impossible de trouver les clés pour le profil '$PROFILE'."
+    exit 1
+  fi
+
+  echo "AK/SK found for profile '$PROFILE' :"
+  echo "  ACCESS_KEY_ID=$ACCESS_KEY_ID"
+  echo "  SECRET_ACCESS_ID=$SECRET_ACCESS_KEY"
+  echo "  ENDPOINT_URL=$ENDPOINT_URL"
+
+  echo "Do you want to continue? [y/N]"
+  read -r response
+  VALID_RESPONSES=("y" "Y" "yes" "YES" "Yes" "o" "O" "oui" "OUI" "Oui")
+
+  if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
+    echo "Aborting."
+    exit 0
+  fi
+
+  aws s3 ls --profile $PROFILE --endpoint-url $ENDPOINT_URL
 }
 
 # :command.function
@@ -1730,10 +1826,17 @@ kryctl_s3_list_command() {
 
   echo "Do you want to continue? [y/N]"
   read -r response
-  VALID_RESPONSES=("y" "Y" "o" "O")
+  VALID_RESPONSES=("y" "Y" "yes" "YES" "Yes" "o" "O" "oui" "OUI" "Oui")
 
   if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
     echo "Aborting."
+    exit 0
+  fi
+
+  # If no bucket provided, list all buckets and exit
+  if [ -z "$BUCKET" ]; then
+    echo "No bucket specified. Listing all buckets:"
+    yes | kryctl s3 ls --profile $PROFILE
     exit 0
   fi
 
@@ -2617,6 +2720,13 @@ kryctl_s3_parse_requirements() {
       shift $#
       ;;
 
+    ls)
+      action="ls"
+      shift
+      kryctl_s3_ls_parse_requirements "$@"
+      shift $#
+      ;;
+
     list)
       action="list"
       shift
@@ -2911,6 +3021,64 @@ kryctl_s3_get_size_parse_requirements() {
     printf "missing required flag: --bucket, -b BUCKET\n" >&2
     exit 1
   fi
+
+}
+
+# :command.parse_requirements
+kryctl_s3_ls_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        kryctl_s3_ls_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="s3 ls"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --profile | -p)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+
+          args['--profile']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--profile requires an argument: --profile, -p PROFILE" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
 
 }
 
@@ -3430,6 +3598,7 @@ run() {
     "s3 profiles") kryctl_s3_profiles_command ;;
     "s3 ui") kryctl_s3_ui_command ;;
     "s3 get-size") kryctl_s3_get_size_command ;;
+    "s3 ls") kryctl_s3_ls_command ;;
     "s3 list") kryctl_s3_list_command ;;
     "s3 download") kryctl_s3_download_command ;;
     "s3 sync") kryctl_s3_sync_command ;;

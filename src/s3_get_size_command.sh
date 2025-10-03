@@ -33,11 +33,19 @@ echo "  Bucket=$BUCKET"
 
 echo "Do you want to continue? [y/N]"
 read -r response
-VALID_RESPONSES=("y" "Y" "o" "O")
+VALID_RESPONSES=("y" "Y" "yes" "YES" "Yes" "o" "O" "oui" "OUI" "Oui")
 
 if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
   echo "Aborting."
   exit 0
+fi
+
+# Check if bucket exists and is accessible
+if ! aws s3 ls s3://$BUCKET --profile $PROFILE --endpoint-url $ENDPOINT_URL > /dev/null 2>&1; then
+  echo "Error: The bucket '$BUCKET' does not exist or is not accessible."
+  echo "List of available buckets:"
+  yes | kryctl s3 ls --profile $PROFILE
+  exit 1
 fi
 
 BUCKET_SIZE=$(aws s3api list-objects --bucket $BUCKET \

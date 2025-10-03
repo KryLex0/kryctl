@@ -105,6 +105,13 @@ commands:
       short: -p
       help: S3 profile to use
       arg: profile
+  - name: ls
+    help: List all buckets in S3
+    flags:
+    - long: --profile
+      short: -p
+      help: S3 profile to use
+      arg: profile
   - name: list
     help: List objects in S3 bucket
     flags:
@@ -198,6 +205,8 @@ commands:
   - kryctl s3 get-size -b my-bucket -p default
   - kryctl s3 list --bucket=my-bucket --profile=default
   - kryctl s3 list -b my-bucket -p default
+  - kryctl s3 ls --profile=default
+  - kryctl s3 ls -p default
   - kryctl s3 download --bucket-path=my-bucket/my-file.txt --profile=default --output=/path/to/output.txt
   - kryctl s3 download -b my-bucket/my-file.txt -p default -o /path/to/output.txt
   - kryctl s3 sync --bucket=my-bucket --local-dir=/path/to/local/dir --profile=default

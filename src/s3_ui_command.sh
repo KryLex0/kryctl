@@ -70,7 +70,7 @@ echo "  ENDPOINT_URL=$ENDPOINT_URL"
 
 echo "Do you want to continue? [y/N]"
 read -r response
-VALID_RESPONSES=("y" "Y" "o" "O")
+VALID_RESPONSES=("y" "Y" "yes" "YES" "Yes" "o" "O" "oui" "OUI" "Oui")
 
 if [[ ! " ${VALID_RESPONSES[@]} " =~ " ${response} " ]]; then
   echo "Aborting."
