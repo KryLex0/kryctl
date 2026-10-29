@@ -86,12 +86,17 @@ fi
 
 # Lance le conteneur Docker avec les clés et l'endpoint récupérés
 docker run --rm -d --name s3-manager-ui -p 8080:8080 \
-  -e "ACCESS_KEY_ID=$ACCESS_KEY_ID" \
-  -e "SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY" \
-  -e "ENDPOINT=$ENDPOINT_URL" \
-  cloudlena/s3manager
+  -e "S3_1_ACCESS_KEY_ID=$ACCESS_KEY_ID" \
+  -e "S3_1_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY" \
+  -e "S3_1_ENDPOINT=$ENDPOINT_URL" \
+  -e "S3_1_NAME=$PROFILE" \
+  -e "BUCKET_LOOKUP=Path" \
+  -e "ALLOW_DELETE=true" \
+  -e "SHOW_METADATA=true" \
+  -e "TZ=Europe/Paris" \
+  cloudlena/s3manager:latest
 
 echo "Docker container started in detached mode."
-echo "You can access the UI at http://localhost:8080"
+echo "You can access the UI at http://localhost:8080/$PROFILE/buckets"
 
 exit 0
